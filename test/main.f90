@@ -106,7 +106,8 @@ program principal
 
   write(*,*) "Enhancement factor An calculation"
   write(*,*)
-  call AnFactor( An, RP, P, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
+  call AnFactor( An, RP, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
+!  call AnFactor( An, RP, P, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
 
   write(*,*) "Integral of the density: ", integrate( rho, r, th, Nr, Nth )
   write(*,*) 
@@ -137,7 +138,7 @@ program principal
   write(*,*)
   open( unit = 13, file = "rho.data" )
   call WriteMatrix( 13, rho, Nr, Nth )
-  close( unit = 13 )
+bg  close( unit = 13 )
 
   write(*,*) "Writing An"
   write(*,*)
