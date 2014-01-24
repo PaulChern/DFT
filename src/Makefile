@@ -1,17 +1,25 @@
-# Build file for the atomic project
+# Build the DFT library
 
-#MPIF90=mpif90
-CPP = gfortran
+FOR = gfortran
 RM = rm
+LN = ln
 FLIBS = -llapack -lblas
-FFLAGS = -m64 -fopenmp
+FFLAGS = -c -g -Wall -m64 -fopenmp -fPIC 
 FFLAGSOPT = -O3 -fopenmp
 
-all: atomic.f90 base.f90 grid.f90 linear.f90 quad.f90 consts.f90 main.f90
-	$(CPP) $(FFLAGS) $(FLIBS) atomic.f90 base.f90 grid.f90 linear.f90 quad.f90 consts.f90 main.f90 -o atomic  
 
-opt: atomic.f90 base.f90 grid.f90 main.f90
-	$(CPP) $(FFLAGSOPT) $(FFLAGS) $(FLIBS) atomic.f90 base.f90 grid.f90 linear.f90 quad.f90 consts.f90 main.f90 -o atomic
+all: atomic.f90 base.f90 grid.f90 linear.f90 quad.f90 consts.f90
+	$(FOR) $(FFLAGS) consts.f90 -o consts.o
+	$(FOR) $(FFLAGS) base.f90 -o base.o
+	$(FOR) $(FFLAGS) grid.f90 -o grid.o
+	$(FOR) $(FFLAGS) linear.f90 -o linear.o
+	$(FOR) $(FFLAGS) quad.f90 -o quad.o
+	$(FOR) $(FFLAGS) atomic.f90 -o atomic.o
+	$(FOR) -fopenmp -rdynamic -shared -o dft.so.1 \
+		atomic.o base.o grid.o linear.o quad.o consts.o -lc
+	$(LN) -sf dft.so.1 dft.so
 
 clean:
-	$(RM) atomic.mod base.mod grid.mod linear.mod quad.mod consts.mod atomic
+	$(RM) atomic.mod base.mod grid.mod linear.mod quad.mod consts.mod
+	$(RM) atomic.o base.o consts.o linear.o quad.o grid.o
+	$(RM) dft.so dft.so.1

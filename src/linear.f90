@@ -157,7 +157,8 @@ end function scalar
 ! QR factorization no destructive version
 subroutine QRfac( Q, R, A, n )
   integer, intent( in ) :: n
-  double precision, intent( in ) :: Q(n,n), R(n,n), A(n,n)
+  double precision, intent( in ) :: A(n,n)
+  double precision, intent( out ) :: Q(n,n), R(n,n)
   integer :: i, j, k
 
   !$omp parallel do shared(Q,R,A) collapse(2)

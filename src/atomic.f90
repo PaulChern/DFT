@@ -187,10 +187,12 @@ end subroutine DFT
 
 !---------------------------------------------------------------------------------------------------
 ! Enhancement factor An
-subroutine AnFactor( An, RP, P, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
+!subroutine AnFactor( An, RP, P, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
+subroutine AnFactor( An, RP, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
   implicit none
   integer, intent( in ) :: Nr, Nth, m, n, d(n+1)
-  double precision, intent( in ) :: RP(Nr,Nth,m), Rb(m,Nr,Nth), rho(Nr,Nth), P(m,m)
+  double precision, intent( in ) :: RP(Nr,Nth,m), Rb(m,Nr,Nth), rho(Nr,Nth)
+!  double precision, intent( in ) :: P(m,m)
   double precision, intent( in ) :: r(Nr), th(Nth), l(n), nc(m), e(m)
   double precision, intent( out ) :: An(Nr,Nth)
   double precision :: DrR(m,Nr,Nth), DthR(m,Nr,Nth), Y( 0:int(l(n)), Nth ), LR(m,Nr,Nth)
