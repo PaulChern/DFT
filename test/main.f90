@@ -138,7 +138,7 @@ program principal
   write(*,*)
   open( unit = 13, file = "rho.data" )
   call WriteMatrix( 13, rho, Nr, Nth )
-bg  close( unit = 13 )
+  close( unit = 13 )
 
   write(*,*) "Writing An"
   write(*,*)
