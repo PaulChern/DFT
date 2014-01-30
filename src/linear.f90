@@ -154,6 +154,39 @@ function scalar( v, w, n ) result( scl )
 end function scalar
 
 !---------------------------------------------------------------------------------------------------
+! Cholesky decomposition
+subroutine CHBfac( L, A, n )
+  integer, intent( in ) :: n
+  double precision, intent( in ) :: A(n,n)
+  double precision, intent( out ) :: L(n,n)
+  integer :: i, j, k
+
+  !$omp parallel do shared(L) collapse(2)
+  do i = 1,n
+    do j = 1,n
+      if ( i >= j ) then
+        L(i,j) = A(i,j)
+      else
+        L(i,j) = 0.0D0
+      end if
+    end do
+  end do
+
+  do j = 1,n
+    L(j,j) = sqrt(L(j,j))
+    do i = (j+1),n
+      L(i,j) = L(i,j) / L(j,j)
+    end do
+    do k = (j+1),n
+      do i = k,n
+        L(i,k) = L(i,k) - L(i,j) * L(k,j)
+      end do
+    end do
+  end do
+
+end subroutine CHBfac
+
+!---------------------------------------------------------------------------------------------------
 ! QR factorization no destructive version
 subroutine QRfac( Q, R, A, n )
   integer, intent( in ) :: n
@@ -163,10 +196,10 @@ subroutine QRfac( Q, R, A, n )
 
   !$omp parallel do shared(Q,R,A) collapse(2)
   do i = 1,n
-     do j = 1,n
-        Q(i,j) = A(i,j)
-        R(i,j) = 0.D0
-     end do
+    do j = 1,n
+      Q(i,j) = A(i,j)
+      R(i,j) = 0.D0
+    end do
   end do
 
   do j = 1,n

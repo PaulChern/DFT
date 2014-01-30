@@ -9,7 +9,7 @@ FFLAGSOPT = -O3 -fopenmp
 
 
 all: main.f90
-	$(FOR)  main.f90 -o atomic -I../src -L../src -ldft
+	$(FOR) main.f90 -o atomic -I../src -L../src -ldft
 
-clean:
+clean:	
 	$(RM) atomic
