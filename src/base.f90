@@ -61,7 +61,7 @@ function HFRb( r, n, e ) result( rb )
   double precision, intent( in ) :: r, n, e
   double precision :: rb
   
-  rb = ( 1.0D0 / sqrt( gamma( 2.0D0 * n + 1.0D0 ) * ( 2.0D0 * e )**( -2.0D0 * n - 1.0D0 ) ) ) * &
+  rb = ( 1.0D0 / sqrt( dgamma( 2.0D0 * n + 1.0D0 ) * ( 2.0D0 * e )**( -2.0D0 * n - 1.0D0 ) ) ) * &
        ( r**( n - 1.0D0 ) ) * exp( -e * r )
 
 end function HFRb
@@ -72,7 +72,7 @@ function DrHFRb( r, n, e ) result( grb )
   double precision, intent( in ) :: r, n, e
   double precision :: grb
   
-  grb = ( 1.0D0 / sqrt( gamma( 2.0D0 * n + 1.0D0 ) * ( 2.0D0 * e )**( -2.0D0 * n - 1.0D0 ) ) ) * &
+  grb = ( 1.0D0 / sqrt( dgamma( 2.0D0 * n + 1.0D0 ) * ( 2.0D0 * e )**( -2.0D0 * n - 1.0D0 ) ) ) * &
        ( ( n - 1.0D0 ) / r - e ) * ( r**( n - 1.0D0 ) ) * exp( -e * r )
 
 end function DrHFRb
@@ -82,7 +82,7 @@ function SLTnorm( n, e ) result( sltn )
   double precision, intent( in ) :: n, e
   double precision :: sltn
 
-  sltn = ( ( 2.0D0 * e )**n ) * sqrt( 2.0D0 * e / gamma( 2.0D0 * n + 1 ) )
+  sltn = ( ( 2.0D0 * e )**n ) * sqrt( 2.0D0 * e / dgamma( 2.0D0 * n + 1 ) )
 
 end function SLTnorm
 

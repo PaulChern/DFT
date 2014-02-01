@@ -45,7 +45,7 @@ program principal
   double precision :: Rf
   double precision, allocatable :: r(:), th(:)
   double precision, allocatable :: P(:,:), Rb(:,:,:), RP(:,:,:)
-  double precision, allocatable :: rho(:,:), An(:,:), T(:,:), K(:,:), U(:,:)
+  double precision, allocatable :: rho(:,:), An(:,:), T(:,:), KKK(:,:), U(:,:)
 
 !---------------------------------------------------------------------------------------------------
 ! Reading parameters
@@ -145,42 +145,34 @@ program principal
   write(*,*)
   open( unit = 14, file = "enhancement.data" )
   call WriteMatrix( 14, An, Nr, Nth )
-  close( unit = 14 )
-
-!---------------------------------------------------------------------------------------------------
-	deallocate( P, Rb, rho, RP, An, r, th )
-	deallocate( l, c, nc, e, ne, d )
+  close( unit = 14 )  
   
+  deallocate( P, Rb, rho, RP, An, r, th )
  
 !---------------------------------------------------------------------------------------------------
-	write(*,*) "ChB algorithm test"
-	write(*,*)
+  write(*,*) "ChB algorithm test"
+  write(*,*)
 
-  m = 3
-	allocate( T(m,m), K(m,m), U(m,m) )
-	T(1,1) = 4.0D0
-	T(1,2) = 12.0D0
-	T(1,3) = -16.0D0
-	T(2,1) = 12.0D0
-	T(2,2) = 37.0D0
-	T(2,3) = -43.0D0
-	T(3,1) = -16.0D0
-	T(3,2) = -43.0D0
-	T(3,3) = 98.0D0
-!   call buildKS( K, T, nc, e, l, d, n, m )
-  call CHBfac( K, T, m )
+  allocate( T(m,m), KKK(m,m), U(m,m) )
+	
+  call buildKS( KKK, T, nc, e, l, d, n, m )
+  call CHBfac( U, KKK, m )
   
-!   open( unit = 15, file = "kinetic.data" )
-!   call WriteMatrix( 15, T, m, m )
-!   close( unit = 15 )
+  open( unit = 15, file = "kinetic.data" )
+  call WriteMatrix( 15, T, m, m )
+  close( unit = 15 )
   
-! 	open( unit = 16, file = "distance.data" )
-! 	call WriteMatrix( 16, K, m, m )
-! 	close( unit = 16 )
-	open( unit = 17, file = "distancechol.data" )
-  call WriteMatrix( 17, K, m, m )
+  open( unit = 16, file = "distance.data" )
+  call WriteMatrix( 16, KKK, m, m )
+  close( unit = 16 )
+  
+  open( unit = 17, file = "deschol.data" )
+  call WriteMatrix( 17, U, m, m )
   close( unit = 17 )
-	deallocate( T, K, U )
+ 
+!---------------------------------------------------------------------------------------------------
+  deallocate( l, c, nc, e, ne, d )
+  deallocate( T, KKK, U )
   
   stop
 
