@@ -19,6 +19,7 @@ program principal
   use coupling
   use grid
   use linear
+  use plotting
   use quad
 
 !---------------------------------------------------------------------------------------------------
@@ -113,7 +114,7 @@ program principal
   write(*,*) "Integral of the density: ", integrate( rho, r, th, Nr, Nth )
   write(*,*) 
 
-  write(*,*) "Integral of the enhancement factor T: ", integrate( An, r, th, Nr, Nth )
+  write(*,*) "Integral of the enhancement factor An: ", integrate( An, r, th, Nr, Nth )
   write(*,*) 
 
 !---------------------------------------------------------------------------------------------------
@@ -146,6 +147,11 @@ program principal
   open( unit = 14, file = "enhancement.data" )
   call WriteMatrix( 14, An, Nr, Nth )
   close( unit = 14 )  
+ 
+!---------------------------------------------------------------------------------------------------
+!   call contour( rho, Nr, Nth, 100, 0.0D0, Rf, 0.0D0, pi_, 0.0D0, 1403.0D0 )
+  call contour( rho, Nr, Nth, 100, 0.0D0, dble( Nr ), 0.0D0, dble( Nth ), 0.0D0, 1403.0D0 )
+!   call contour( P, m, m, 10, 0.0D0, 1.0D0, 0.0D0, 1.0D0, 0.2819753D0, 1.867394D0 )
   
   deallocate( P, Rb, rho, RP, An, r, th )
  
@@ -173,7 +179,7 @@ program principal
 !---------------------------------------------------------------------------------------------------
   deallocate( l, c, nc, e, ne, d )
   deallocate( T, KKK, U )
-  
+ 
   stop
 
 end program principal

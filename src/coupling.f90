@@ -56,12 +56,12 @@ subroutine buildKS( H, T, nc, e, l, d, n, m )
                 e(k) * e(k) * SLTnorm( nc(j) + nc(k) + 1.0D0, e(j) + e(k) ) ) / &
                 ( nrmj * nrmk )
 
-            H( j, k ) = dgamma( nc(j) + nc(k) + 1.0D0 ) / ( e(j) + e(k) )**( nc(j) + nc(k) + 1.0D0 )
+           H( j, k ) = dgamma( nc(j) + nc(k) + 1.0D0 ) / ( e(j) + e(k) )**( nc(j) + nc(k) + 1.0D0 )
 
-            if ( k > j ) then
-               T( k, j ) = T( j, k )
-               H( k, j ) = H( j, k )
-            end if
+           if ( k > j ) then
+              T( k, j ) = T( j, k )
+              H( k, j ) = H( j, k )
+           end if
 
         end do
      end do
