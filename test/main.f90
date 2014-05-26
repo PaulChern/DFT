@@ -19,6 +19,7 @@ program principal
   use coupling
   use grid
   use linear
+  use plotting
   use quad
 
 !---------------------------------------------------------------------------------------------------
@@ -113,7 +114,7 @@ program principal
   write(*,*) "Integral of the density: ", integrate( rho, r, th, Nr, Nth )
   write(*,*) 
 
-  write(*,*) "Integral of the enhancement factor T: ", integrate( An, r, th, Nr, Nth )
+  write(*,*) "Integral of the enhancement factor An: ", integrate( An, r, th, Nr, Nth )
   write(*,*) 
 
 !---------------------------------------------------------------------------------------------------
@@ -146,6 +147,15 @@ program principal
   open( unit = 14, file = "enhancement.data" )
   call WriteMatrix( 14, An, Nr, Nth )
   close( unit = 14 )  
+ 
+!---------------------------------------------------------------------------------------------------
+ call contour( rho, Nr, Nth, 0.0, sngl(Rf), 10, 0.0, sngl(pi_), 10, 0.0, 1403.0, 10, 1 )
+ call surface( rho, r, th, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, 0.0, 1403.0, 10, &
+               0.0, 0.0, 0.0 )
+ call contour( An, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, -125.0, 0.0, 10, 2 )
+ call surface( An, r, th, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, -125.0, 0.0, 10, &
+               0.0, 0.0, 0.0 )
+ call contour( P, m, m, 0.0, real(m), 10, 0.0, real(m), 10, 0.2819753, 1.867394, 10, 1 )
   
   deallocate( P, Rb, rho, RP, An, r, th )
  
@@ -169,11 +179,15 @@ program principal
   open( unit = 17, file = "deschol.data" )
   call WriteMatrix( 17, U, m, m )
   close( unit = 17 )
+  
+  call contour( T, m, m, 0.0, real(m), 10, 0.0, real(m), 10, -446.843, 220.607, 10, 1 )
+  call contour( KKK, m, m, 0.0, real(m), 10, 0.0, real(m), 10, 0.0, 269.6191, 10, 1 )
+!   call contour( U, m, m, 0.0, real(m), 10, 0.0, real(m), 10, -0.06284573, 12.16492, 10, 1 )
  
 !---------------------------------------------------------------------------------------------------
   deallocate( l, c, nc, e, ne, d )
   deallocate( T, KKK, U )
-  
+ 
   stop
 
 end program principal
