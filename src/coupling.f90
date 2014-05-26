@@ -18,10 +18,10 @@ contains
 
 !---------------------------------------------------------------------------------------------------
 ! Building Khon-Shan system of equations
-subroutine buildKS( H, T, nc, e, l, d, n, m )
+subroutine buildKS( H, T, nc, e, ne, l, d, n, m )
   implicit none
   integer, intent( in ) :: n, m, d(n+1)
-  double precision, intent( in ) :: l(n), nc(m), e(m)
+  double precision, intent( in ) :: l(n), nc(m), e(m), ne(n)
   double precision, intent( out ) ::  H(m,m), T(m,m)
   integer :: i, j, k, Mi, Ni
   double precision :: nrmj, nrmk
@@ -44,24 +44,32 @@ subroutine buildKS( H, T, nc, e, l, d, n, m )
 
       do j = Mi,Ni
 
-        nrmj = SLTnorm( nc(j), e(j) )
+        nrmj = 1.0D0 / sqrt( SLTnorm( 2.0D0 * nc(j), 2.0D0 * e(j) ) )
 
-        do k = j,Ni
+        do k = Mi,Ni
 
-           nrmk = SLTnorm( nc(k), e(k) )
+           nrmk = 1.0D0 / sqrt( SLTnorm( 2.0D0 * nc(k), 2.0D0 * e(k) ) )
 
-           T( j, k ) = 0.5D0 * ( ( l(i) * ( l(i) + 1.0D0 ) - nc(k) * ( nc(k) - 1.0D0 ) ) * &
-                SLTnorm( nc(j) + nc(k) - 1.0D0, e(j) + e(k) ) +  &
-                2.0D0 * e(k) * nc(k) * SLTnorm( nc(j) + nc(k), e(j) + e(k) ) - &
-                e(k) * e(k) * SLTnorm( nc(j) + nc(k) + 1.0D0, e(j) + e(k) ) ) / &
-                ( nrmj * nrmk )
+!            T( j, k ) = 0.5D0 * ne(i) * ( ( l(i) * ( l(i) + 1.0D0 ) - nc(k) * ( nc(k) - 1.0D0 ) ) * &
+!                 SLTnorm( nc(j) + nc(k) - 1.0D0, e(j) + e(k) ) +  &
+!                 2.0D0 * e(k) * nc(k) * SLTnorm( nc(j) + nc(k), e(j) + e(k) ) - &
+!                 e(k) * e(k) * SLTnorm( nc(j) + nc(k) + 1.0D0, e(j) + e(k) ) ) / &
+!                 ( nrmj * nrmk )
+                
+          T( j, k ) = 0.5D0 * ne(i) * nrmj * nrmk * ( &
+            ( nc(i) - 1.0D0 ) * ( nc(j) - 1.0D0 ) * &
+            SLTnorm( nc(i) + nc(j) - 2.0D0, e(i) + e(j) ) - &
+            
+            ( ( nc(i) - 1.0D0 ) * e(j) + ( nc(j) - 1.0D0 ) * e(i) ) * &
+            SLTnorm( nc(i) + nc(j) - 1.0D0, e(i) + e(j) ) + &
+            
+            e(i) * e(j) * &
+            SLTnorm( nc(i) + nc(j), e(i) + e(j) ) + &
+            
+            l(i) * ( l(i) + 1.0D0 ) * &
+            SLTnorm( nc(i) + nc(j) - 2.0D0, e(i) + e(j) ) )
 
            H( j, k ) = dgamma( nc(j) + nc(k) + 1.0D0 ) / ( e(j) + e(k) )**( nc(j) + nc(k) + 1.0D0 )
-
-           if ( k > j ) then
-              T( k, j ) = T( j, k )
-              H( k, j ) = H( j, k )
-           end if
 
         end do
      end do

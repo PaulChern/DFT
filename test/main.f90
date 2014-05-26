@@ -40,7 +40,7 @@ program principal
   character( len = 100 ) :: infile
   integer :: n, m
   integer, allocatable :: d(:)
-  double precision, allocatable :: l(:), c(:), nc(:), e(:), ne(:)
+  double precision, allocatable :: l(:), c(:), nc(:), e(:), ne(:), y(:)
 
   integer :: Nr, Nth, i
   double precision :: Rf
@@ -58,7 +58,7 @@ program principal
   read( 10, * ) n
   read( 10, * ) m
 
-  allocate( l(n), c(m), nc(m), e(m), ne(n), d(n+1) )
+  allocate( l(n), c(m), nc(m), e(m), ne(n), d(n+1), y(m) )
   
   read( 10, * ) l
   read( 10, * ) c
@@ -115,7 +115,7 @@ program principal
   write(*,*) 
 
   write(*,*) "Integral of the enhancement factor An: ", integrate( An, r, th, Nr, Nth )
-  write(*,*) 
+  write(*,*)  
 
 !---------------------------------------------------------------------------------------------------
 ! Writing results
@@ -149,15 +149,15 @@ program principal
   close( unit = 14 )  
  
 !---------------------------------------------------------------------------------------------------
- call contour( rho, Nr, Nth, 0.0, sngl(Rf), 10, 0.0, sngl(pi_), 10, 0.0, 1403.0, 10, 1 )
- call surface( rho, r, th, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, 0.0, 1403.0, 10, &
-               0.0, 0.0, 0.0 )
- call contour( An, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, -125.0, 0.0, 10, 2 )
- call surface( An, r, th, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, -125.0, 0.0, 10, &
-               0.0, 0.0, 0.0 )
+!  call contour( rho, Nr, Nth, 0.0, sngl(Rf), 10, 0.0, sngl(pi_), 10, 0.0, 1403.0, 10, 1 )
+!  call surface( rho, r, th, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, 0.0, 1403.0, 10, &
+!                0.0, 0.0, 0.0 )
+!  call contour( An, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, -125.0, 0.0, 10, 2 )
+!  call surface( An, r, th, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, -125.0, 0.0, 10, &
+!                0.0, 0.0, 0.0 )
  call contour( P, m, m, 0.0, real(m), 10, 0.0, real(m), 10, 0.2819753, 1.867394, 10, 1 )
   
-  deallocate( P, Rb, rho, RP, An, r, th )
+ deallocate( P, Rb, rho, RP, An, r, th )
  
 !---------------------------------------------------------------------------------------------------
   write(*,*) "ChB algorithm test"
@@ -165,7 +165,10 @@ program principal
 
   allocate( T(m,m), KKK(m,m), U(m,m) )
 	
-  call buildKS( KKK, T, nc, e, l, d, n, m )
+  call buildKS( KKK, T, nc, e, ne, l, d, n, m )
+  call MatMulVec( y, T, c, m, m )
+  write(*,*) "Integral of the kinetic energy T: ", scalar( y, c, m )
+  write(*,*) 
   call CHBfac( U, KKK, m )
   
   open( unit = 15, file = "kinetic.data" )
@@ -181,11 +184,12 @@ program principal
   close( unit = 17 )
   
   call contour( T, m, m, 0.0, real(m), 10, 0.0, real(m), 10, -446.843, 220.607, 10, 1 )
-  call contour( KKK, m, m, 0.0, real(m), 10, 0.0, real(m), 10, 0.0, 269.6191, 10, 1 )
+!   call contour( KKK, m, m, 0.0, real(m), 10, 0.0, real(m), 10, 0.0, 269.6191, 10, 1 )
+
 !   call contour( U, m, m, 0.0, real(m), 10, 0.0, real(m), 10, -0.06284573, 12.16492, 10, 1 )
  
 !---------------------------------------------------------------------------------------------------
-  deallocate( l, c, nc, e, ne, d )
+  deallocate( l, c, nc, e, ne, d, y )
   deallocate( T, KKK, U )
  
   stop

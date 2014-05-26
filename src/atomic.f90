@@ -196,11 +196,11 @@ subroutine AnFactor( An, RP, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
   double precision, intent( in ) :: r(Nr), th(Nth), l(n), nc(m), e(m)
   double precision, intent( out ) :: An(Nr,Nth)
   double precision :: DrR(m,Nr,Nth), DthR(m,Nr,Nth), Y( 0:int(l(n)), Nth ), LR(m,Nr,Nth)
-!!$  double precision :: DrRP(Nr,Nth,m), DthRP(Nr,Nth,m)
+!   double precision :: DrRP(Nr,Nth,m), DthRP(Nr,Nth,m)
   double precision :: Gr, Gth, Wzck, T
   integer :: i_r, i_th, i, j, Mi, Ni, li
-!!$  double precision ::  sum_r, sum_th
-!!$  integer :: k
+!   double precision ::  sum_r, sum_th
+!   integer :: k
 
   !$omp parallel do shared(LR,DrR,DthR) collapse(3)
   do i_r = 1,Nr
@@ -209,8 +209,8 @@ subroutine AnFactor( An, RP, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
            LR( i, i_r, i_th ) = 0.0D0
            DrR( i, i_r, i_th ) = 0.0D0
            DthR( i, i_r, i_th ) = 0.0D0
-!!$           DrRP( i_r, i_th, i ) = 0.0D0
-!!$           DthRP( i_r, i_th, i ) = 0.0D0
+!            DrRP( i_r, i_th, i ) = 0.0D0
+!            DthRP( i_r, i_th, i ) = 0.0D0
         end do
      end do
   end do
@@ -218,7 +218,6 @@ subroutine AnFactor( An, RP, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
   ! spherical harmonics matrix calculation
   call SphHrm( Y, int(l(n)), th, Nth )
 
-!!$  !$omp parallel do private(i,j,Mi,Ni,li) shared(n,d,l,Rb,DrR,DthR,th,nc,e,Y) collapse(2)
   !$omp parallel do private(i,j,Mi,Ni,li) shared(n,d,l,Rb,LR,DrR,DthR,th,nc,e,Y) collapse(2)
   do i_r = 1,Nr
      do i_th = 1,Nth
@@ -230,15 +229,15 @@ subroutine AnFactor( An, RP, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
            li = int( l(i) )
            do j = Mi,Ni
               
-!!$              LR( j, i_r, i_th ) = ( -( ( nc(j) - 1.0D0 ) / r(i_r) - e(j) )**2.0D0 + &
-!!$                   l(i) * ( l(i) + 1.0D0 ) / ( r(i_r)**2.0D0 ) ) * Rb( j, i_r, i_th )
+              LR( j, i_r, i_th ) = ( -( ( nc(j) - 1.0D0 ) / r(i_r) - e(j) )**2.0D0 + &
+                   l(i) * ( l(i) + 1.0D0 ) / ( r(i_r)**2.0D0 ) ) * Rb( j, i_r, i_th )
 
-!!$              LR( j, i_r, i_th ) = ( ( -e(j) * r(i_r) + ( nc(j) - 1.0D0 ) )**2.0D0 + &
-!!$                   l(i) * ( l(i) + 1.0D0 ) ) * Rb( j, i_r, i_th ) / ( r(i_r)**2.0D0 )
+!               LR( j, i_r, i_th ) = ( ( -e(j) * r(i_r) + ( nc(j) - 1.0D0 ) )**2.0D0 + &
+!                    l(i) * ( l(i) + 1.0D0 ) ) * Rb( j, i_r, i_th ) / ( r(i_r)**2.0D0 )
 
-              LR( j, i_r, i_th ) = ( -nc(j) + ( nc(j) - e(j) * r(i_r) )**2.0D0 - &
-                   l(i) * ( l(i) + 1.0D0 ) ) * Rb( j, i_r, i_th ) / ( r(i_r)**2.0D0 )
-             
+!               LR( j, i_r, i_th ) = ( -nc(j) + ( nc(j) - e(j) * r(i_r) )**2.0D0 - &
+!                    l(i) * ( l(i) + 1.0D0 ) ) * Rb( j, i_r, i_th ) / ( r(i_r)**2.0D0 )
+!              
               DrR( j, i_r, i_th ) = ( ( nc(j) - 1.0D0 ) / r(i_r) - e(j) ) * Rb( j, i_r, i_th )
 
               if ( li > 0 .and. sin( th(i_th) ) > 0.0D0 ) then
@@ -251,30 +250,37 @@ subroutine AnFactor( An, RP, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
      end do
   end do
 
-!!$  !$omp parallel do private(i,j,k,Mi,Ni,sum_r,sum_th) shared(n,d,P,DrR,DthR,DrRP,DthRP) collapse(2)
-!!$  do i_r = 1,Nr
-!!$     do i_th = 1,Nth
-!!$        Mi = 1
-!!$        Ni = 0
-!!$        do i = 1,n
-!!$           Mi = Mi + d( i )
-!!$           Ni = d( i + 1 ) + Mi - 1
-!!$           do j = Mi,Ni
-!!$              sum_r = 0.0D0
-!!$              sum_th = 0.0D0
-!!$              do k = Mi,Ni
-!!$                 sum_r = sum_r + DrR( k, i_r, i_th ) * P( k, j )
-!!$                 sum_th = sum_th + DthR( k, i_r, i_th ) * P( k, j )
-!!$              end do
-!!$              DrRP( i_r, i_th, j ) = sum_r
-!!$              DthRP( i_r, i_th, j ) = sum_th
-!!$           end do
-!!$        end do
-!!$     end do
-!!$  end do
-    
-!!$  !$omp parallel do private(i,j,Mi,Ni,T,Wzck,Gr,Gth,sum_r,sum_th) shared(n,d,RP,DrR,DthR,DrRP,DthRP,rho,An) collapse(2)
-  !$omp parallel do private(i,j,Mi,Ni,T,Wzck,Gr,Gth) shared(n,d,RP,LR,DrR,DthR,rho,An) collapse(2)
+!   !$omp parallel do private(i,j,k,Mi,Ni,sum_r,sum_th) shared(n,d,P,DrR,DthR,DrRP,DthRP) collapse(2)
+!   do i_r = 1,Nr
+!      do i_th = 1,Nth
+!         Mi = 1
+!         Ni = 0
+!         do i = 1,n
+!            Mi = Mi + d( i )
+!            Ni = d( i + 1 ) + Mi - 1
+!            do j = Mi,Ni
+!               sum_r = 0.0D0
+!               sum_th = 0.0D0
+!               do k = Mi,Ni
+!                  sum_r = sum_r + DrR( k, i_r, i_th ) * P( k, j )
+!                  sum_th = sum_th + DthR( k, i_r, i_th ) * P( k, j )
+!               end do
+!               DrRP( i_r, i_th, j ) = sum_r
+!               DthRP( i_r, i_th, j ) = sum_th
+!            end do
+!         end do
+!      end do
+!   end do
+  
+!   !$omp parallel do &
+!   !$omp& private(i,j,Mi,Ni,T,Wzck,Gr,Gth,sum_r,sum_th) &
+!   !$omp& shared(n,d,RP,DrR,DthR,DrRP,DthRP,rho,An) &
+!   !$omp& collapse(2)
+
+  !$omp parallel do &
+  !$omp& private(i,j,Mi,Ni,T,Wzck,Gr,Gth) &
+  !$omp& shared(n,d,RP,LR,DrR,DthR,rho,An) &
+  !$omp& collapse(2)
   do i_r = 1,Nr
      do i_th = 1,Nth
         T = 0.0D0
@@ -282,8 +288,8 @@ subroutine AnFactor( An, RP, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
         Gth = 0.0D0
         Mi = 1
         Ni = 0
-!!$        sum_r = 0.0D0
-!!$        sum_th = 0.0D0
+!         sum_r = 0.0D0
+!         sum_th = 0.0D0
         do i = 1,n
            Mi = Mi + d( i )
            Ni = d( i + 1 ) + Mi - 1
@@ -291,18 +297,17 @@ subroutine AnFactor( An, RP, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
               T = T + RP( i_r, i_th, j ) * LR( j, i_r, i_th )
               Gr = Gr + RP( i_r, i_th, j ) * DrR( j, i_r, i_th )
               Gth = Gth + RP( i_r, i_th, j ) * DthR( j, i_r, i_th )
-!!$              sum_r = sum_r + DrRP( i_r, i_th, j ) * DrR( j, i_r, i_th )
-!!$              sum_th = sum_th + DthRP( i_r, i_th, j ) * DthR( j, i_r, i_th )
+!               sum_r = sum_r + DrRP( i_r, i_th, j ) * DrR( j, i_r, i_th )
+!               sum_th = sum_th + DthRP( i_r, i_th, j ) * DthR( j, i_r, i_th )
            end do
         end do
         Wzck = ( Gr**2.0D0 + ( r(i_r)**(-2.0D0) ) * Gth**2.0D0 ) / rho( i_r, i_th )
-        An( i_r, i_th ) = ( T - pi2_ * Wzck ) / ( ( pi2_ * rho( i_r, i_th ) )**( 5.0D0 / 3.0D0 ) )
-!!$        T = sum_r**2.0D0 + ( r(i_r)**(-2.0D0) ) * sum_th**2.0D0
-!!$        An( i_r, i_th ) =  0.5D0 * T
-!!$        An( i_r, i_th ) = Wzck
+!        An( i_r, i_th ) = ( T - pi2_ * Wzck ) / ( ( pi2_ * rho( i_r, i_th ) )**( 5.0D0 / 3.0D0 ) )
+!         T = sum_r**2.0D0 + ( r(i_r)**(-2.0D0) ) * sum_th**2.0D0
+!        An( i_r, i_th ) =  0.5D0 * T
+
      end do
   end do
-
 end subroutine AnFactor
 
 end module atomic

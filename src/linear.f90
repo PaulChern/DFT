@@ -48,6 +48,44 @@ subroutine WriteVector( unit, A, n )
 end subroutine WriteVector
 
 !---------------------------------------------------------------------------------------------------
+subroutine MatMulVec( y, A, x, m, n )
+  implicit none
+  integer, intent( in ) :: m, n
+  double precision, intent( out ) :: y(m)
+  double precision, intent( in ) :: A(m,n), x(n)
+  integer :: i, j
+
+!   if ( p == m ) then
+!     allocate( y(n) )
+!     !$omp parallel do private(i) shared(y)
+!     do i = 1,n
+!       y(i) = 0.0D0
+!     end do
+    
+!     !$omp parallel do private(i,j) shared(x,y,A) collapse(2)
+!     do i = 1,m
+!       do j = 1,n
+!         y(j) = y(j) + A(i,j) * x(i)
+!       end do
+!     end do  
+!   else if ( p == n ) then
+!     allocate( y(m) )
+    !$omp parallel do private(i) shared(y)
+    do i = 1,m
+      y(i) = 0.0D0
+    end do
+
+    !$omp parallel do private(i,j) shared(x,y,A) collapse(2)
+    do i = 1,m
+      do j = 1,n
+        y(i) = y(i) + A(i,j) * x(j)
+      end do
+    end do
+!   end if 
+
+end subroutine MatMulVec
+
+!---------------------------------------------------------------------------------------------------
 ! Matrix multiplication
 subroutine MatMul( C, A, B, m, n, p, q, TA, TB )
   implicit none

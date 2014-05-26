@@ -82,7 +82,8 @@ function SLTnorm( n, e ) result( sltn )
   double precision, intent( in ) :: n, e
   double precision :: sltn
 
-  sltn = ( ( 2.0D0 * e )**n ) * sqrt( 2.0D0 * e / dgamma( 2.0D0 * n + 1 ) )
+!   sltn = ( ( 2.0D0 * e )**n ) * sqrt( 2.0D0 * e / dgamma( 2.0D0 * n + 1 ) )
+  sltn = gamma( n + 1.0D0 ) * e**( -n - 1.0D0 )
 
 end function SLTnorm
 
