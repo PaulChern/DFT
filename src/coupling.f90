@@ -37,42 +37,42 @@ subroutine buildKS( H, T, nc, e, ne, l, d, n, m )
   Mi = 1
   Ni = 0
 
+!   !$omp parallel do private(i) shared(j,k,nrmj,nrmk,d,nc,ne,e,H,T)
   do i = 1,n
 
       Mi = Mi + d( i )
       Ni = d( i + 1 ) + Mi - 1
 
       do j = Mi,Ni
-
-        nrmj = 1.0D0 / sqrt( SLTnorm( 2.0D0 * nc(j), 2.0D0 * e(j) ) )
-
+          nrmj = 1.0D0 / sqrt( STOnorm( 2.0D0 * nc(j), 2.0D0 * e(j) ) )
         do k = Mi,Ni
 
-           nrmk = 1.0D0 / sqrt( SLTnorm( 2.0D0 * nc(k), 2.0D0 * e(k) ) )
-
-!            T( j, k ) = 0.5D0 * ne(i) * ( ( l(i) * ( l(i) + 1.0D0 ) - nc(k) * ( nc(k) - 1.0D0 ) ) * &
-!                 SLTnorm( nc(j) + nc(k) - 1.0D0, e(j) + e(k) ) +  &
-!                 2.0D0 * e(k) * nc(k) * SLTnorm( nc(j) + nc(k), e(j) + e(k) ) - &
-!                 e(k) * e(k) * SLTnorm( nc(j) + nc(k) + 1.0D0, e(j) + e(k) ) ) / &
-!                 ( nrmj * nrmk )
-                
+          nrmk = 1.0D0 / sqrt( STOnorm( 2.0D0 * nc(k), 2.0D0 * e(k) ) )
+               
           T( j, k ) = 0.5D0 * ne(i) * nrmj * nrmk * ( &
-            ( nc(i) - 1.0D0 ) * ( nc(j) - 1.0D0 ) * &
-            SLTnorm( nc(i) + nc(j) - 2.0D0, e(i) + e(j) ) - &
+            ( nc(j) - 1.0D0 ) * ( nc(k) - 1.0D0 ) * &
+            STOnorm( nc(j) + nc(k) - 2.0D0, e(j) + e(k) ) - &
             
-            ( ( nc(i) - 1.0D0 ) * e(j) + ( nc(j) - 1.0D0 ) * e(i) ) * &
-            SLTnorm( nc(i) + nc(j) - 1.0D0, e(i) + e(j) ) + &
+            ( ( nc(j) - 1.0D0 ) * e(k) + ( nc(k) - 1.0D0 ) * e(j) ) * &
+            STOnorm( nc(j) + nc(k) - 1.0D0, e(j) + e(k) ) + &
             
-            e(i) * e(j) * &
-            SLTnorm( nc(i) + nc(j), e(i) + e(j) ) + &
+            e(j) * e(k) * &
+            STOnorm( nc(j) + nc(k), e(j) + e(k) ) + &
             
             l(i) * ( l(i) + 1.0D0 ) * &
-            SLTnorm( nc(i) + nc(j) - 2.0D0, e(i) + e(j) ) )
+            STOnorm( nc(j) + nc(k) - 2.0D0, e(j) + e(k) ) )
 
-           H( j, k ) = dgamma( nc(j) + nc(k) + 1.0D0 ) / ( e(j) + e(k) )**( nc(j) + nc(k) + 1.0D0 )
+           H( j, k ) = ne(i) * dgamma( nc(j) + nc(k) + 1.0D0 ) / ( e(j) + e(k) )**( nc(j) + nc(k) + 1.0D0 )
+           
+!            T( j, k ) = 0.5D0 * ne(i) * ( ( l(i) * ( l(i) + 1.0D0 ) - nc(k) * ( nc(k) - 1.0D0 ) ) * &
+!                 STOnorm( nc(j) + nc(k) - 1.0D0, e(j) + e(k) ) +  &
+!                 2.0D0 * e(k) * nc(k) * STOnorm( nc(j) + nc(k), e(j) + e(k) ) - &
+!                 e(k) * e(k) * STOnorm( nc(j) + nc(k) + 1.0D0, e(j) + e(k) ) ) / &
+!                 ( nrmj * nrmk )
 
         end do
      end do
+
   end do
 
 end subroutine buildKS

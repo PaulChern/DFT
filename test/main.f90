@@ -71,8 +71,8 @@ program principal
 ! Grid generation
 
   Rf = 5.0D0
-  Nr = 100
-  Nth = 100
+  Nr = 200
+  Nth = 200
 
   ! Grid generation
   allocate( r( Nr ), th( Nth ) )
@@ -104,7 +104,7 @@ program principal
 
   write(*,*) "DFT Density function calculation"
   write(*,*)
-  call DFT( rho, RP, P, Rb, d, n, m, Nr, Nth )
+  call DFT( rho, RP, P, Rb, d, n, m, r, th, Nr, Nth )
 
   write(*,*) "Enhancement factor An calculation"
   write(*,*)
@@ -150,8 +150,8 @@ program principal
  
 !---------------------------------------------------------------------------------------------------
 !  call contour( rho, Nr, Nth, 0.0, sngl(Rf), 10, 0.0, sngl(pi_), 10, 0.0, 1403.0, 10, 1 )
-!  call surface( rho, r, th, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, 0.0, 1403.0, 10, &
-!                0.0, 0.0, 0.0 )
+ call surface( rho, r, th, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, 0.0, 2.0, 10, &
+               0.0, 0.0, 0.0 )
 !  call contour( An, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, -125.0, 0.0, 10, 2 )
 !  call surface( An, r, th, Nr, Nth, 0.0, 5.0, 10, 0.0, sngl(pi_), 10, -125.0, 0.0, 10, &
 !                0.0, 0.0, 0.0 )

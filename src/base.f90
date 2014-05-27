@@ -56,7 +56,7 @@ end subroutine SphHrm
 
 !---------------------------------------------------------------------------------------------------
 ! Radial Hartree-Fock base function
-function HFRb( r, n, e ) result( rb )
+function STOradial( r, n, e ) result( rb )
   implicit none
   double precision, intent( in ) :: r, n, e
   double precision :: rb
@@ -64,7 +64,7 @@ function HFRb( r, n, e ) result( rb )
   rb = ( 1.0D0 / sqrt( dgamma( 2.0D0 * n + 1.0D0 ) * ( 2.0D0 * e )**( -2.0D0 * n - 1.0D0 ) ) ) * &
        ( r**( n - 1.0D0 ) ) * exp( -e * r )
 
-end function HFRb
+end function STOradial
 
 !---------------------------------------------------------------------------------------------------
 function DrHFRb( r, n, e ) result( grb )
@@ -77,14 +77,14 @@ function DrHFRb( r, n, e ) result( grb )
 
 end function DrHFRb
 
-function SLTnorm( n, e ) result( sltn )
+function STOnorm( n, e ) result( sltn )
   implicit none
   double precision, intent( in ) :: n, e
   double precision :: sltn
 
 !   sltn = ( ( 2.0D0 * e )**n ) * sqrt( 2.0D0 * e / dgamma( 2.0D0 * n + 1 ) )
-  sltn = gamma( n + 1.0D0 ) * e**( -n - 1.0D0 )
+  sltn = dgamma( n + 1.0D0 ) * e**( -n - 1.0D0 )
 
-end function SLTnorm
+end function STOnorm
 
 end module base

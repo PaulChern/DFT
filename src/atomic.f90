@@ -106,7 +106,7 @@ subroutine RBS( Rb, r, th, l, nc, e, d, Nr, Nth, n, m )
            Ni = d( i + 1 ) + Mi - 1
            li = int( l(i) )
            do j = Mi,Ni
-              Rb( j, i_r, i_th ) = HFRb( r( i_r ), nc(j), e(j) ) * Y( li, i_th )
+              Rb( j, i_r, i_th ) = STOradial( r( i_r ), nc(j), e(j) ) * Y( li, i_th )
            end do
         end do
      end do
@@ -124,11 +124,11 @@ end subroutine RBS
 ! Nr = radial grid size
 ! Nth = angular grid size
 !
-subroutine DFT( rho, RP, P, R, d, n, m, Nr, Nth )
+subroutine DFT( rho, RbP, P, Rb, d, n, m, r, th, Nr, Nth )
   implicit none
   integer, intent( in ) :: n, m, Nr, Nth, d(n+1)
-  double precision, intent( out ) :: rho(Nr,Nth), RP(Nr,Nth,m)
-  double precision, intent( in ) :: R(m,Nr,Nth), P(m,m)
+  double precision, intent( out ) :: rho(Nr,Nth), RbP(Nr,Nth,m)
+  double precision, intent( in ) :: Rb(m,Nr,Nth), P(m,m), r(Nr), th(Nth)
   double precision :: sum
   integer :: i, j, k, Mi, Ni, i_r, i_th
 
@@ -136,13 +136,13 @@ subroutine DFT( rho, RP, P, R, d, n, m, Nr, Nth )
   do i_r = 1,Nr
      do i_th = 1,Nth
         do i = 1,m
-           RP( i_r, i_th, i ) = 0.0D0
+           RbP( i_r, i_th, i ) = 0.0D0
         end do
      end do
   end do
 
   ! R^t * P product construction by blocks
-  !$omp parallel do private(i,j,k,Mi,Ni,sum) shared(n,d,R,P,RP) collapse(2)
+  !$omp parallel do private(i,j,k,Mi,Ni,sum) shared(n,d,Rb,P,RbP) collapse(2)
   do i_r = 1,Nr
      do i_th = 1,Nth
         Mi = 1
@@ -153,33 +153,22 @@ subroutine DFT( rho, RP, P, R, d, n, m, Nr, Nth )
            do j = Mi,Ni
               sum = 0.0D0
               do k = Mi,Ni
-                 sum = sum + R( k, i_r, i_th ) * P( k, j )
+                 sum = sum + Rb( k, i_r, i_th ) * P( k, j )
               end do
-              RP( i_r, i_th, j ) = sum
+              RbP( i_r, i_th, j ) = sum
            end do
         end do
      end do
   end do
   
-  !!$omp parallel do private(i,j,Mi,Ni,sum) shared(n,d,RP,R,rho) collapse(2)
-  !$omp parallel do private(i,j,Mi,Ni,sum) shared(m,RP,R,rho) collapse(2)
+  !$omp parallel do private(j,sum) shared(m,r,th,RbP,Rb,rho) collapse(2)
   do i_r = 1,Nr
      do i_th = 1,Nth
-!!$        Mi = 1
-!!$        Ni = 0
-!!$        sum = 0.0D0
-!!$        do i = 1,n
-!!$           Mi = Mi + d( i )
-!!$           Ni = d( i + 1 ) + Mi - 1
-!!$           do j = Mi,Ni
-!!$              sum = sum + RP( i_r, i_th, j ) * R( j, i_r, i_th )
-!!$           end do
-!!$        end do
         sum = 0.0D0
         do j = 1,m
-           sum = sum + RP( i_r, i_th, j ) * R( j, i_r, i_th )
+           sum = sum + RbP( i_r, i_th, j ) * Rb( j, i_r, i_th )
         end do
-        rho(i_r,i_th) = sum
+        rho(i_r,i_th) = sum * sin( th( i_th ) ) * r( i_r )**2
      end do
   end do
   
@@ -242,7 +231,7 @@ subroutine AnFactor( An, RP, Rb, rho, r, th, l, nc, e, d, Nr, Nth, n, m )
 
               if ( li > 0 .and. sin( th(i_th) ) > 0.0D0 ) then
                  DthR( j, i_r, i_th ) = l(i) * ( cos( th(i_th) ) * Rb( j, i_r, i_th ) - &
-                      HFRb( r( i_r ), nc(j), e(j) ) * Y( li - 1, i_th ) ) / sin( th(i_th) )
+                      STOradial( r( i_r ), nc(j), e(j) ) * Y( li - 1, i_th ) ) / sin( th(i_th) )
               end if
 
            end do
