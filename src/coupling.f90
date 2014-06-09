@@ -62,14 +62,8 @@ subroutine buildKS( H, T, nc, e, ne, l, d, n, m )
             l(i) * ( l(i) + 1.0D0 ) * &
             STOnorm( nc(j) + nc(k) - 2.0D0, e(j) + e(k) ) )
 
-           H( j, k ) = ne(i) * dgamma( nc(j) + nc(k) + 1.0D0 ) / ( e(j) + e(k) )**( nc(j) + nc(k) + 1.0D0 )
+           H( j, k ) = ne(i) * dgamma( nc(j) + nc(k) + 1.0D0 ) * ( e(j) + e(k) )**( -nc(j) - nc(k) - 1.0D0 ) * nrmk * nrmj
            
-!            T( j, k ) = 0.5D0 * ne(i) * ( ( l(i) * ( l(i) + 1.0D0 ) - nc(k) * ( nc(k) - 1.0D0 ) ) * &
-!                 STOnorm( nc(j) + nc(k) - 1.0D0, e(j) + e(k) ) +  &
-!                 2.0D0 * e(k) * nc(k) * STOnorm( nc(j) + nc(k), e(j) + e(k) ) - &
-!                 e(k) * e(k) * STOnorm( nc(j) + nc(k) + 1.0D0, e(j) + e(k) ) ) / &
-!                 ( nrmj * nrmk )
-
         end do
      end do
 
