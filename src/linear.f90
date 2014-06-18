@@ -55,21 +55,6 @@ subroutine MatMulVec( y, A, x, m, n )
   double precision, intent( in ) :: A(m,n), x(n)
   integer :: i, j
 
-!   if ( p == m ) then
-!     allocate( y(n) )
-!     !$omp parallel do private(i) shared(y)
-!     do i = 1,n
-!       y(i) = 0.0D0
-!     end do
-    
-!     !$omp parallel do private(i,j) shared(x,y,A) collapse(2)
-!     do i = 1,m
-!       do j = 1,n
-!         y(j) = y(j) + A(i,j) * x(i)
-!       end do
-!     end do  
-!   else if ( p == n ) then
-!     allocate( y(m) )
     !$omp parallel do private(i) shared(y)
     do i = 1,m
       y(i) = 0.0D0
@@ -81,7 +66,6 @@ subroutine MatMulVec( y, A, x, m, n )
         y(i) = y(i) + A(i,j) * x(j)
       end do
     end do
-!   end if 
 
 end subroutine MatMulVec
 
@@ -166,7 +150,7 @@ function norm( v, n ) result( nrm )
   integer :: i
 
   nrm = 0.0D0
-  !#omp parallel do shared(n,nrm,v)
+  !#omp parallel do shared(n,v) private(i) reduction(+:nrm)
   do i = 1,n
      nrm = nrm + v(i) * v(i)
   end do
@@ -184,7 +168,7 @@ function scalar( v, w, n ) result( scl )
   integer :: i
 
   scl = 0.0D0
-  !#omp parallel do shared(n,scl,v,w)
+  !#omp parallel do shared(n,v,w) private(i) reduction(+:scl)
   do i = 1,n
      scl = scl + v(i) * w(i)
   end do
