@@ -38,14 +38,14 @@ program principal
 !---------------------------------------------------------------------------------------------------
 
   character( len = 100 ) :: infile
-  integer :: n, m
+  integer :: n, m, Nr
   integer, allocatable :: d(:)
   double precision, allocatable :: l(:), c(:), nc(:), e(:), ne(:)
-  double precision, allocatable :: P(:,:), T(:,:), U(:,:), y(:)
+  double precision, allocatable :: DFT(:,:), T(:,:), y(:), p(:), r(:)
 
 !---------------------------------------------------------------------------------------------------
 ! Reading parameters
-
+  write(*,*) "Reading file with parameters"
   call getarg( 1, infile )
 
   open( unit = 10, file = infile )
@@ -61,42 +61,72 @@ program principal
   read( 10, * ) e
   read( 10, * ) ne
   read( 10, * ) d
+
+ 
+!---------------------------------------------------------------------------------------------------
+! Grid generations
+  Nr = 1000
+  write(*,*) "Building radial mesh with size: ", Nr
+  allocate( r(Nr), p(Nr) )
+  call grid_adap_exp( r, Nr, 5.0D0, 5.0D0 )
+  !call grid_unif( r, Nr, 0.0D0, 5.0D0 )
  
 !---------------------------------------------------------------------------------------------------
   write(*,*) "DFT computations"
-  write(*,*)
 
-  allocate( T(m,m), P(m,m), U(m,m) )
+  allocate( T(m,m), DFT(m,m) )
 	
-  call buildKS( P, T, nc, e, ne, l, d, n, m )
-  call MatMulVec( y, T, c, m, m )
-  write(*,*) "Exact integral of the kinetic energy T: ", scalar( y, c, m )
-  write(*,*)
-  call MatMulVec( y, P, c, m, m )
-  write(*,*) "Exact integral of density: ", scalar( y, c, m )
-  write(*,*)
-  call CHBfac( U, P, m )
+  write(*,*) "Building DFT matrices"
+  call buildKS( DFT, T, nc, e, ne, l, d, n, m )
   
+  write(*,*) "Computing exact kinetic energy"
+  open( unit = 14, file = 'results.data' )
+  call MatMulVec( y, T, c, m, m )
+  write(14,*) "Exact integral of the kinetic energy T: ", scalar( y, c, m )
+  
+  write(*,*) "Computing exact density"
+  call MatMulVec( y, DFT, c, m, m )
+  write(14,*) "Exact integral of density: ", scalar( y, c, m )
+  close( unit = 14 )
+  
+  write(*,*) "Computing radial density"
+  call radialDFT( p, r, Nr, c, nc, e, ne, d, n, m )
+
+
+!---------------------------------------------------------------------------------------------------
+  write(*,*) "Writing results in *.data files"
+  
+  write(*,*) "Writing kinetic energy"
   open( unit = 15, file = "kinetic.data" )
   call WriteMatrix( 15, T, m, m )
   close( unit = 15 )
   
+  write(*,*) "Writing density matrix"
   open( unit = 16, file = "density.data" )
-  call WriteMatrix( 16, P, m, m )
+  call WriteMatrix( 16, DFT, m, m )
   close( unit = 16 )
   
-  open( unit = 17, file = "deschol.data" )
-  call WriteMatrix( 17, U, m, m )
+  write(*,*) "Writing radial grid"
+  open( unit = 17, file = "radial_grid.data" )
+  call WriteVector( 17, r, Nr )
   close( unit = 17 )
-  
-  call contour( T, m, m, 0.0, real(m), 10, 0.0, real(m), 10, -446.843, 220.607, 10, 1 )
-  call contour( P, m, m, 0.0, real(m), 10, 0.0, real(m), 10, 0.0, 3.0, 10, 1 )
-
-!   call contour( U, m, m, 0.0, real(m), 10, 0.0, real(m), 10, -0.06284573, 12.16492, 10, 1 )
  
+  write(*,*) "Writing radial density"
+  open( unit = 18, file = "radial_density.data" )
+  call WriteVector( 18, p, Nr )
+  close( unit = 18 )
+
+
+!---------------------------------------------------------------------------------------------------
+  write(*,*) "Plotting"
+  call contour( T, m, m, 0.0, real(m), 10, 0.0, real(m), 10, -446.843, 220.607, 10, 1 )
+  call contour( DFT, m, m, 0.0, real(m), 10, 0.0, real(m), 10, 0.0, 3.0, 10, 1 )
+
+
 !---------------------------------------------------------------------------------------------------
   deallocate( l, c, nc, e, ne, d )
-  deallocate( T, P, U, y )
+  deallocate( T, DFT, y )
+  deallocate( r, p )
  
   stop
 
