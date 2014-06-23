@@ -64,6 +64,7 @@ program principal
   read( 10, * ) ne
   read( 10, * ) d
 
+! Paramaters for homogeneous approximation
   Ct = (/ 3.26422D0, -0.02631D0, 0.000498D0 /)
   W = (/ 5.0D0/3.0D0, 4.0D0/3.0D0, 11.0D0/9.0D0 /)
   J = (/ 1.0D0, 2.0D0, 3.0D0 /)
