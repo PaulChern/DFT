@@ -45,5 +45,25 @@ subroutine radialDFT( p, r, Nr, c, nc, e, ne, d, n, m )
   
 end subroutine radialDFT
 
+
+subroutine HomogeneousApprox( T, C, W, J, p, r, Nr, n )
+  integer, intent( in ) :: n, Nr
+  double precision, intent( in ) :: C(n), W(n), J(n), p(Nr), r(Nr)
+  double precision, intent( out ) :: T
+  double precision :: S
+  integer :: k, l
+  
+  T = 0.0D0
+  do k = 1,n
+    S = 0.0D0
+    do l = 1,(Nr-1)
+!       S = S + ( ( 0.5D0 * ( p(l+1) + p(l) ) )**W(k) ) * ( r(l+1) - r(l) )
+      S = S + ( p(l)**W(k) ) * ( r(l+1) - r(l) )
+    end do
+    T = T + C(k) * S**J(k)
+  end do
+  
+end subroutine HomogeneousApprox
+
 end module atomic
 

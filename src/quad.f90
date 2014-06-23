@@ -12,7 +12,7 @@ module quad
   implicit none
 contains
 
-function integrate( rho, r, th, Nr, Nth ) result( intgrt )
+function integrateRTH( rho, r, th, Nr, Nth ) result( intgrt )
   integer, intent( in ) :: Nr, Nth
   double precision, intent( in ) :: r(Nr), th(Nth), rho(Nr,Nth)
   double precision :: intgrt
@@ -27,8 +27,6 @@ function integrate( rho, r, th, Nr, Nth ) result( intgrt )
      end do
   end do
   
-end function integrate
-
-
+end function integrateRTH
 
 end module quad

@@ -42,6 +42,8 @@ program principal
   integer, allocatable :: d(:)
   double precision, allocatable :: l(:), c(:), nc(:), e(:), ne(:)
   double precision, allocatable :: DFT(:,:), T(:,:), y(:), p(:), r(:)
+  double precision, dimension(3) :: Ct, W, J
+  double precision :: Tapp
 
 !---------------------------------------------------------------------------------------------------
 ! Reading parameters
@@ -62,7 +64,10 @@ program principal
   read( 10, * ) ne
   read( 10, * ) d
 
- 
+  Ct = (/ 3.26422D0, -0.02631D0, 0.000498D0 /)
+  W = (/ 5.0D0/3.0D0, 4.0D0/3.0D0, 11.0D0/9.0D0 /)
+  J = (/ 1.0D0, 2.0D0, 3.0D0 /)
+  
 !---------------------------------------------------------------------------------------------------
 ! Grid generations
   Nr = 1000
@@ -87,11 +92,15 @@ program principal
   write(*,*) "Computing exact density"
   call MatMulVec( y, DFT, c, m, m )
   write(14,*) "Exact integral of density: ", scalar( y, c, m )
-  close( unit = 14 )
+  
   
   write(*,*) "Computing radial density"
   call radialDFT( p, r, Nr, c, nc, e, ne, d, n, m )
-
+  
+  write(*,*) "Computing Kinectic Energy approximation"
+  call HomogeneousApprox( Tapp, Ct, W, J, p, r, Nr, 3 )
+  write(14,*) "Kinectic Energy approximation: ",  Tapp
+  close( unit = 14 )
 
 !---------------------------------------------------------------------------------------------------
   write(*,*) "Writing results in *.data files"
@@ -115,8 +124,8 @@ program principal
   open( unit = 18, file = "radial_density.data" )
   call WriteVector( 18, p, Nr )
   close( unit = 18 )
-
-
+  
+  
 !---------------------------------------------------------------------------------------------------
   write(*,*) "Plotting"
   call contour( T, m, m, 0.0, real(m), 10, 0.0, real(m), 10, -446.843, 220.607, 10, 1 )
